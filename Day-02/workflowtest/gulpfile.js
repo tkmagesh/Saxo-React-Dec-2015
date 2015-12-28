@@ -3,7 +3,7 @@ var browserify = require('browserify');
 var through2 = require('through2');
 
 gulp.task('build', function () {
-    return gulp.src('./src/es6TestClient.js')
+    return gulp.src('./src/employeeTestClient.js')
         .pipe(through2.obj(function (file, enc, next) {
             browserify(file.path, { debug: process.env.NODE_ENV === 'development' })
                 .transform(require('babelify'))
@@ -21,3 +21,5 @@ gulp.task('build', function () {
         .pipe(require('gulp-rename')('bundle.js'))
         .pipe(gulp.dest('./dist'));
 });
+
+gulp.task("default", ["build"]);
