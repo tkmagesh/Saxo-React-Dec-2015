@@ -66,8 +66,10 @@ function Adder(){
             console.log("[SP] returning result");
             //return result;
             _callbacks.forEach(function(callback){
-                callback(null, result);
-            })
+                setTimeout(function(){
+                    callback(null, result);    
+                });
+            });
         },3000);
 
     };
@@ -94,3 +96,36 @@ function addAsyncUsingPromise(x,y){
     });
     return promise;
 }
+
+function addLazyAsyncUsingPromise(x,y){
+    console.log("[SP] processing ", x , " and ", y);
+    var promise = new Promise(function(resolve, reject){
+        setTimeout(function(){
+            if (!x || !y){
+                reject("invalid arguments");
+            } else {
+                var result = x + y;
+                console.log("[SP] returning lazy result");
+                resolve(result);
+            }
+        },7000);
+    });
+    return promise;
+}
+
+//Deferred
+function addAsyncUsingDeferred(x,y){
+    console.log("[SP] processing ", x , " and ", y);
+    var deferred = Promise.defer();
+    setTimeout(function(){
+        if (!x || !y){
+            deferred.reject("invalid arguments");
+        } else {
+            var result = x + y;
+            console.log("[SP] returning result");
+            deferred.resolve(result);
+        }
+    },3000);
+    return deferred.promise;
+}
+
