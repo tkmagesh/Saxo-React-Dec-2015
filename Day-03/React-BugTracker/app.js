@@ -32,32 +32,52 @@ var App = React.createClass({
     render : function(){
         return (
             <div>
-                <Greeter />
-                <hr/>
                 <ProductList />
             </div>
         )
     }
 });
 
+function Product(defaults){
+    this.name = defaults.name || '';
+    this.cost = defaults.cost || 0;
+    this.units = defaults.units || 0;
+    this.value = defaults.value || 0;
+}
+Product.prototype.updateValue = function(){
+    this.value = this.units * this.cost;
+}
 var ProductList = React.createClass({
+    componentDidMount : function(){
+        console.log("ComponentDidMount in PRoductList");
+    },
     getInitialState : function(){
         return {
-            list : ["Pen", "Pencil"],
-            message : "[default message]"
+            list : [],
+            productTotalValue : 0
         };
     },
     onAddProduct : function(){
         var newProductName = this.refs.txtProductName.value;
-        this.state.list.push(newProductName);
-        this.setState({
-            message : 'A new product is added - [' + newProductName + ']'
+        var newProduct = new Product({
+            name : newProductName,
+            units : 0,
+            cost : 0,
+            value : 0
         });
+        this.state.list.push(newProduct);
+        this.updateValues();
+    },
+    updateValues : function(){
+        this.setState({ productTotalValue : this.state.list.reduce(function(agg, product){
+            return agg + product.value;
+        }, 0)});
     },
     render : function(){
+        console.log("render in ProductList");
         var productItems = this.state.list.map(function(product){
-            return (<li>{product}</li>)
-        });
+            return (<ProductItem data={product} onProductUpdate={this.updateValues}></ProductItem>)
+        }.bind(this));
         return (
             <div>
                 <h3>Product List</h3>
@@ -67,11 +87,45 @@ var ProductList = React.createClass({
                 <ol>
                     {productItems}
                 </ol>
-                <div>{this.state.message}</div>
+                <div>{this.state.productTotalValue}</div>
             </div>
         );
     }
-})
+});
+
+var ProductItem = React.createClass({
+    componentDidMount : function(){
+        console.log("ComponentDidMount in PRoductItem");
+    },
+    getInitialState : function(){
+        return {
+            product : this.props.data
+        };
+    },
+    updateProduct : function(){
+        var product = this.state.product;
+        product.cost = parseInt(this.refs.txtCost.value, 10);
+        product.units = parseInt(this.refs.txtUnits.value, 10);
+    },
+    updateProductValue : function(){
+        console.log(this.state.product);
+        var product = this.state.product;
+        product.updateValue();
+        this.props.onProductUpdate();
+    },
+    render : function(){
+        console.log("render in ProductItem");
+        return (
+            <li>
+                <span>{this.state.product.name}</span>
+                <input type="text" ref="txtCost" onChange={this.updateProduct}/>
+                <input type="text" ref="txtUnits" onChange={this.updateProduct}/>
+                <input type="button" value="Update" onClick={this.updateProductValue} />
+                <span>{this.state.product.value}</span>
+            </li>
+        )
+    }
+});
 
 ReactDOM.render(
     <App></App>,
