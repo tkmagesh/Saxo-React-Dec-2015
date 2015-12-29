@@ -18,6 +18,7 @@ var Greeter = React.createClass({
 
         return (
           <div>
+              <h3>Greeter</h3>
               <input type="text" ref="txtName" />
               <input type="text" ref="txtCount" />
               <input type="button" value="Greet" onClick={this.onGreet} id="btnGreet"/>
@@ -27,7 +28,52 @@ var Greeter = React.createClass({
     }
 });
 
+var App = React.createClass({
+    render : function(){
+        return (
+            <div>
+                <Greeter />
+                <hr/>
+                <ProductList />
+            </div>
+        )
+    }
+});
+
+var ProductList = React.createClass({
+    getInitialState : function(){
+        return {
+            list : ["Pen", "Pencil"],
+            message : "[default message]"
+        };
+    },
+    onAddProduct : function(){
+        var newProductName = this.refs.txtProductName.value;
+        this.state.list.push(newProductName);
+        this.setState({
+            message : 'A new product is added - [' + newProductName + ']'
+        });
+    },
+    render : function(){
+        var productItems = this.state.list.map(function(product){
+            return (<li>{product}</li>)
+        });
+        return (
+            <div>
+                <h3>Product List</h3>
+                <label>Product Name :</label>
+                <input type="text" ref="txtProductName" />
+                <input type="button" value="Add Product" onClick={this.onAddProduct} />
+                <ol>
+                    {productItems}
+                </ol>
+                <div>{this.state.message}</div>
+            </div>
+        );
+    }
+})
+
 ReactDOM.render(
-    <Greeter message="Welcome to react!"></Greeter>,
+    <App></App>,
     document.getElementById("content")
 );
